@@ -1,14 +1,17 @@
 from PIL import Image
 from io import BytesIO
 from matplotlib import pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 import cv2
 import numpy as np
 import math
 
-prevKP = []
-prevDes = []
-prevImg = []
+kp1 = []
+des1 = []
+x_arr = []
+y_arr = []
+z_arr = []
 
 def featureExtraction(frame):
 
@@ -25,7 +28,7 @@ def featureExtraction(frame):
     dataAssociation(frame)
 
 def dataAssociation(currImg):
-    global prevKP, prevImg, prevDes
+    global kp1, des1
 
     cv2.resize(currImg, (600, 600))
 
@@ -33,24 +36,39 @@ def dataAssociation(currImg):
     orb = cv2.ORB_create()
 
     # find the keypoints with ORB
-    currKP, currDes = orb.detectAndCompute(currImg, None)
+    kp2, des2 = orb.detectAndCompute(currImg, None)
 
-    if prevImg != []:
+    if kp1 != []:
         bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
-        matches = bf.match(prevDes, currDes)
+        matches = bf.match(des1, des2)
         matches = sorted(matches, key=lambda x: x.distance)
 
-        # Draw first 10 matches.
-        img3 = cv2.drawMatches(prevImg, prevKP, currImg, currKP, matches[:10], currImg, flags=2)
-        cv2.imshow('corners', img3)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            cv2.destroyAllWindows()
+        points1 = []
+        points2 = []
 
+        # horizontal(x) and vertical(y) length of image from center
+        x = 600 / 2
+        y = 600 / 2
 
+        for mat in matches:
+            # Get the matching keypoints for each of the images
+            img1_idx = mat.queryIdx
+            img2_idx = mat.trainIdx
 
-    prevKP = currKP
-    prevDes = currDes
-    prevImg = currImg
+            # x - columns
+            # y - rows
+            # Get the coordinates
+            (x1, y1) = kp1[img1_idx].pt
+            (x2, y2) = kp2[img2_idx].pt
+
+            # Append to each list
+            points1.append((x1, y1))
+            points2.append((x2, y2))
+
+        getWorldCoords(points1, points2, kp2)
+
+    kp1 = kp2
+    des1 = des2
 
 def orbCompare():
     img = cv2.imread("trees.jpg")
@@ -80,30 +98,11 @@ def orbCompare():
     cv2.imshow('corners', img3)
     cv2.waitKey()
 
-def buildMap(matches, kp1, kp2):
+def getWorldCoords(points1, points2, kp2):
+    global kp1, x_arr, y_arr, z_arr
 
-    points1 = []
-    points2 = []
-
-    #horizontal(x) and vertical(y) length of image from center
     x = 600 / 2
     y = 600 / 2
-
-
-    for mat in matches:
-        # Get the matching keypoints for each of the images
-        img1_idx = mat.queryIdx
-        img2_idx = mat.trainIdx
-
-        # x - columns
-        # y - rows
-        # Get the coordinates
-        (x1, y1) = kp1[img1_idx].pt
-        (x2, y2) = kp2[img2_idx].pt
-
-        # Append to each list
-        points1.append((x1, y1))
-        points2.append((x2, y2))
 
     #focal lengths (assumes that the field of view is 60)
     f_x = x / math.tan(60 / 2)
@@ -113,6 +112,9 @@ def buildMap(matches, kp1, kp2):
     K = np.array([[f_x, 0, x],
                   [0, f_y, y],
                   [0, 0, 1]])
+
+    print(np.array(points1).shape)
+    print(np.array(K).shape)
 
     E = cv2.findEssentialMat(points1, points2, K)
 
@@ -124,15 +126,30 @@ def buildMap(matches, kp1, kp2):
     z = np.array([[0, 1, 0],
                   [-1, 0, 0],
                  [0, 0, 0]])
+
     t = np.asmatrix(U) * np.asmatrix(z) * np.asmatrix(U).T
 
     R = np.asmatrix(U) * np.asmatrix(w_i) * np.asmatrix(vh).T
 
     for i in range(len(kp1)):
-        x3 = ((R[0] - kp2[i]))
+        #compute the 3d coordinate (x1, x2, x3) for each point
+        x3 = ((R[0] - kp2[i].pt[0] * t) / (R[0] - kp2[i].pt[0] * y))
+        x1 = x3 * kp1[i].pt[0]
+        x2 = x3 * kp1[i].pt[1]
+
+        x_arr.append(x1)
+        y_arr.append(x2)
+        z_arr.append(x3)
 
 
-    return
+def buildMap():
+    global x_arr, y_arr, z_arr
+    fig = plt.figure()
+    ax = Axes3D(fig)
+    ax.scatter(x_arr, y_arr, z_arr)
+
+    cv2.imshow()
+    cv2.waitKey()
 
 class coordinates:
     #x_ij: the 3D position of the point with respect to the camera

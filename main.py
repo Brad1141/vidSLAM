@@ -12,7 +12,7 @@ while(cap.isOpened()):
   if ret == True:
 
     # Display the resulting frame
-    DataVisual.featureExtraction(frame)
+    DataVisual.dataAssociation(frame)
 
     # Press Q on keyboard to  exit
     if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -24,6 +24,8 @@ while(cap.isOpened()):
 
 # When everything done, release the video capture object
 cap.release()
+
+DataVisual.buildMap()
 
 # Closes all the frames
 cv2.destroyAllWindows()
