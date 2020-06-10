@@ -25,12 +25,11 @@ def featureExtraction(frame):
     img2 = cv2.drawKeypoints(frame, kp, None, color=(0, 0, 255), flags=0)
 
     cv2.imshow('drive', img2)
-    dataAssociation(frame)
 
 def dataAssociation(currImg):
     global kp1, des1
 
-    cv2.resize(currImg, (600, 600))
+    cv2.resize(currImg, (800, 600))
 
     # Initiate STAR detector
     orb = cv2.ORB_create()
@@ -47,10 +46,10 @@ def dataAssociation(currImg):
         points2 = []
 
         # horizontal(x) and vertical(y) length of image from center
-        x = 600 / 2
+        x = 800 / 2
         y = 600 / 2
 
-        for mat in matches[:20]:
+        for mat in matches[:50]:
             # Get the matching keypoints for each of the images
             img1_idx = mat.queryIdx
             img2_idx = mat.trainIdx
@@ -101,7 +100,7 @@ def orbCompare():
 def getWorldCoords(points1, points2, kp2):
     global kp1, x_arr, y_arr, z_arr
 
-    x = 600 / 2
+    x = 800 / 2
     y = 600 / 2
 
     #focal lengths (assumes that the field of view is 60)
@@ -130,7 +129,7 @@ def getWorldCoords(points1, points2, kp2):
 
     for i in range(len(kp1)):
         #compute the 3d coordinate (x1, x2, x3) for each point
-        x3 = ((R[0] - kp2[i].pt[0] * t) / (R[0] - kp2[i].pt[0] * y))
+        x3 = ((R[0] - (kp2[i].pt[0] * R[2]) * t) / ((R[0] - kp2[i].pt[0] * R[2]) * y))
         x1 = x3 * kp1[i].pt[0]
         x2 = x3 * kp1[i].pt[1]
 

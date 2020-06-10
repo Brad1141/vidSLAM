@@ -13,19 +13,13 @@ while(cap.isOpened()):
 
     count = count + 1
     # Display the resulting frame
-    frame = cv2.resize(frame, (600, 600))
-    cv2.imshow('drive', frame)
+    frame = cv2.resize(frame, (800, 600))
 
-    if count >= 60:
+    DataVisual.featureExtraction(frame)
+
+    if count >= 10:
       DataVisual.dataAssociation(frame)
       count = 0
-
-
-    # Display the resulting frame
-    frame = cv2.resize(frame, (600, 600))
-    cv2.imshow('drive', frame)
-
-    DataVisual.dataAssociation(frame)
 
     # Press Q on keyboard to  exit
     if cv2.waitKey(1) & 0xFF == ord('q'):
