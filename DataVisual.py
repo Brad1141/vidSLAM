@@ -50,7 +50,7 @@ def dataAssociation(currImg):
         x = 600 / 2
         y = 600 / 2
 
-        for mat in matches:
+        for mat in matches[:20]:
             # Get the matching keypoints for each of the images
             img1_idx = mat.queryIdx
             img2_idx = mat.trainIdx
@@ -113,10 +113,7 @@ def getWorldCoords(points1, points2, kp2):
                   [0, f_y, y],
                   [0, 0, 1]])
 
-    print(np.array(points1).shape)
-    print(np.array(K).shape)
-
-    E = cv2.findEssentialMat(points1, points2, K)
+    E, mask = cv2.findEssentialMat(np.float32(points1), np.float32(points2), K)
 
     U, S, vh = np.linalg.svd(E)
 
@@ -148,8 +145,8 @@ def buildMap():
     ax = Axes3D(fig)
     ax.scatter(x_arr, y_arr, z_arr)
 
-    cv2.imshow()
-    cv2.waitKey()
+    plt.show()
+
 
 class coordinates:
     #x_ij: the 3D position of the point with respect to the camera
