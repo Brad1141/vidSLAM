@@ -147,29 +147,4 @@ def buildMap():
     plt.show()
 
 
-class coordinates:
-    #x_ij: the 3D position of the point with respect to the camera
-    #t_iw: the pose of the camera
-
-    prevCamPos = [0, 0, 0]
-    def __init__(self, x_ij, t_iw):
-        self.x_ij = x_ij
-        self.t_iw = t_iw
-
-    def calculateCoord(self, xy, camPos):
-        #calulate the rotation matrix
-        v = np.cross(self.prevCamPos, camPos)
-        #magnitude of v
-        s = np.linalg.norm(v)
-        c = np.asmatrix(self.prevCamPos) * np.asmatrix(camPos)
-
-        v_x = np.array([0, -v[2], v[1]],
-                       [v[2], 0, -v[0]],
-                       [-v[1], v[0], 0])
-
-        R_iw = np.identity(3) + v_x + (v_x * v_x * ((1 - c)/(s * s)))
-
-        robotPos = R_iw * x_wj + t_iw
-
-
 
