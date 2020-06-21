@@ -6,6 +6,7 @@ from mpl_toolkits.mplot3d import Axes3D
 import cv2
 import numpy as np
 import math
+import SLAM
 
 kp1 = []
 des1 = []
@@ -61,8 +62,8 @@ def dataAssociation(currImg):
             (x2, y2) = kp2[img2_idx].pt
 
             # Append to each list
-            points1.append((x1, y1))
-            points2.append((x2, y2))
+            points1.append([x1, y1])
+            points2.append([x2, y2])
 
         getWorldCoords(points1, points2, kp2)
 
@@ -102,6 +103,8 @@ def getWorldCoords(points1, points2, kp2):
 
     x = 800 / 2
     y = 600 / 2
+    currLM = []
+    prevLM = []
 
     #focal lengths (assumes that the field of view is 60)
     f_x = x / math.tan(60 / 2)
@@ -127,15 +130,22 @@ def getWorldCoords(points1, points2, kp2):
 
     R = np.asmatrix(U) * np.asmatrix(w_i) * np.asmatrix(vh).T
 
-    for i in range(len(kp1)):
-        #compute the 3d coordinate (x1, x2, x3) for each point
-        x3 = ((R[0] - (kp2[i].pt[0] * R[2]) * t) / ((R[0] - kp2[i].pt[0] * R[2]) * y))
-        x1 = x3 * kp1[i].pt[0]
-        x2 = x3 * kp1[i].pt[1]
+    for i in range(len(points1)):
+        # #compute the 3d coordinate (x1, x2, x3) for each point
+        # x3 = ((R[0] - (kp2[i].pt[0] * R[2]) * t) / ((R[0] - kp2[i].pt[0] * R[2]) * y))
+        # x1 = x3 * kp1[i].pt[0]
+        # x2 = x3 * kp1[i].pt[1]
+        #
+        # x_arr.append(x1)
+        # y_arr.append(x2)
+        # z_arr.append(x3)
 
-        x_arr.append(x1)
-        y_arr.append(x2)
-        z_arr.append(x3)
+        currZ = ((R[0] - (points2[i][0] * R[2]) * t) / ((R[0] - points2[i][0] * R[2]) * y))
+        prevZ = ((R[0] - (points1[i][0] * R[2]) * t) / ((R[0] - points1[i][0] * R[2]) * y))
+        currLM.append([points2[i][0], points2[i][1], currZ])
+        prevLM.append([points1[i][0], points1[i][1], prevZ])
+
+    return currLM, prevLM
 
 
 def buildMap():
@@ -143,7 +153,6 @@ def buildMap():
     fig = plt.figure()
     ax = Axes3D(fig)
     ax.scatter(x_arr, y_arr, z_arr)
-
     plt.show()
 
 
