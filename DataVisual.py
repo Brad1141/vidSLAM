@@ -69,34 +69,6 @@ def dataAssociation(currImg):
     kp1 = kp2
     des1 = des2
 
-def orbCompare():
-    img = cv2.imread("trees.jpg")
-    img = cv2.resize(img, (600, 600))
-    (h, w) = img.shape[:2]
-
-    # calculate the center of the image
-    center = (w / 2, h / 2)
-
-    angle90 = 90
-    scale = 1.0
-
-    M = cv2.getRotationMatrix2D(center, 27, scale)
-    r90 = cv2.warpAffine(img, M, (h, w))
-
-    orb = cv2.ORB_create()
-
-    kp, des = orb.detectAndCompute(img, None)
-    kp2, des2 = orb.detectAndCompute(r90, None)
-
-    bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
-    matches = bf.match(des, des2)
-    matches = sorted(matches, key=lambda x: x.distance)
-
-    # Draw first 10 matches.
-    img3 = cv2.drawMatches(img, kp, r90, kp2, matches[:10], r90, flags=2)
-    cv2.imshow('corners', img3)
-    cv2.waitKey()
-
 def getWorldCoords(points1, points2, kp2):
     global kp1, x_arr, y_arr, z_arr
 
