@@ -1,7 +1,5 @@
 import DataVisual
 import cv2
-import numpy as np
-
 
 cap = cv2.VideoCapture('drive.mp4')
 count = 0

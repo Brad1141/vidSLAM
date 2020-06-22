@@ -75,18 +75,11 @@ def getWorldCoords(points1, points2, kp2):
     x = 800 / 2
     y = 600 / 2
 
-    #focal lengths (assumes that the field of view is 60)
-    f_x = x / math.tan(60 / 2)
-    f_y = y / math.tan(60 / 2)
+    #create the fundamental matrix
+    E, mask = cv2.findFundamentalMat(np.float32(points1), np.float32(points2), cv2.FM_RANSAC)
 
-    #camera matrix
-    K = np.array([[f_x, 0, x],
-                  [0, f_y, y],
-                  [0, 0, 1]])
-
-    E, mask = cv2.findEssentialMat(np.float32(points1), np.float32(points2), K)
-
-    U, S, vh = np.linalg.svd(E)
+    #preform single value decomposition on the matrix
+    U, S, vt = np.linalg.svd(E)
 
     w_i = np.array([[0, 1, 0],
                     [-1, 0, 0],
@@ -95,11 +88,13 @@ def getWorldCoords(points1, points2, kp2):
                   [-1, 0, 0],
                  [0, 0, 0]])
 
+    #calcluate the Rotation matrix and translation vector
     t = np.asmatrix(U) * np.asmatrix(z) * np.asmatrix(U).T
 
-    R = np.asmatrix(U) * np.asmatrix(w_i) * np.asmatrix(vh).T
+    R = np.asmatrix(U) * np.asmatrix(w_i) * np.asmatrix(vt).T
 
-    for i in range(len(kp1)):
+    #for each landmark, calculate the 3D coordinates
+    for i in range(len(kp2)):
         #compute the 3d coordinate (x1, x2, x3) for each point
         x3 = ((R[0] - (kp2[i].pt[0] * R[2]) * t) / ((R[0] - kp2[i].pt[0] * R[2]) * y))
         x1 = x3 * kp1[i].pt[0]
@@ -110,6 +105,7 @@ def getWorldCoords(points1, points2, kp2):
         z_arr.append(x3)
 
 
+#build the point cloud
 def buildMap():
     global x_arr, y_arr, z_arr
     fig = plt.figure()
