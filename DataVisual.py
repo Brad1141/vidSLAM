@@ -10,6 +10,9 @@ import SLAM
 
 kp1 = []
 des1 = []
+camX_arr = []
+camY_arr = []
+camZ_arr = []
 x_arr = []
 y_arr = []
 z_arr = []
@@ -99,7 +102,7 @@ def orbCompare():
     cv2.waitKey()
 
 def getWorldCoords(points1, points2, kp2):
-    global kp1, x_arr, y_arr, z_arr
+    global kp1, camX_arr, camY_arr, camZ_arr, x_arr, y_arr, z_arr
 
     x = 800 / 2
     y = 600 / 2
@@ -131,54 +134,46 @@ def getWorldCoords(points1, points2, kp2):
     R = np.asmatrix(U) * np.asmatrix(w_i) * np.asmatrix(vh).T
 
     for i in range(len(points1)):
-        # #compute the 3d coordinate (x1, x2, x3) for each point
-        # x3 = ((R[0] - (kp2[i].pt[0] * R[2]) * t) / ((R[0] - kp2[i].pt[0] * R[2]) * y))
-        # x1 = x3 * kp1[i].pt[0]
-        # x2 = x3 * kp1[i].pt[1]
-        #
-        # x_arr.append(x1)
-        # y_arr.append(x2)
-        # z_arr.append(x3)
+        #compute the 3d coordinate (x1, x2, x3) for each point
+        x3 = ((R[0] - (kp2[i].pt[0] * R[2]) * t) / ((R[0] - kp2[i].pt[0] * R[2]) * y))
+        x1 = x3 * kp1[i].pt[0]
+        x2 = x3 * kp1[i].pt[1]
+
+        x_arr.append(x1)
+        y_arr.append(x2)
+        z_arr.append(x3)
 
         currZ = ((R[0] - (points2[i][0] * R[2]) * t) / ((R[0] - points2[i][0] * R[2]) * y))
         prevZ = ((R[0] - (points1[i][0] * R[2]) * t) / ((R[0] - points1[i][0] * R[2]) * y))
         currLM.append([points2[i][0], points2[i][1], currZ])
         prevLM.append([points1[i][0], points1[i][1], prevZ])
 
+    xk = SLAM.predictState(currLM, prevLM, points1, points2)
+    camX, camY, camZ = xk[0], xk[1], xk[2]
+    camX_arr.append(camX)
+    camY_arr.append(camY)
+    camZ_arr.append(camZ)
+
+    count = 0
+    for i in range(3, len(xk)):
+        count = count + 1
+        if count == 1:
+            x_arr.append(xk[i])
+        elif count == 2:
+            y_arr.append(xk[i])
+        else:
+            z_arr.append(xk[i])
+
     return currLM, prevLM
 
 
 def buildMap():
-    global x_arr, y_arr, z_arr
+    global x_arr, y_arr, z_arr, camX_arr, camY_arr, camZ_arr
     fig = plt.figure()
     ax = Axes3D(fig)
     ax.scatter(x_arr, y_arr, z_arr)
+    ax.scatter(camX_arr, camY_arr, camZ_arr, c=(255, 0, 0))
     plt.show()
-
-
-class coordinates:
-    #x_ij: the 3D position of the point with respect to the camera
-    #t_iw: the pose of the camera
-
-    prevCamPos = [0, 0, 0]
-    def __init__(self, x_ij, t_iw):
-        self.x_ij = x_ij
-        self.t_iw = t_iw
-
-    def calculateCoord(self, xy, camPos):
-        #calulate the rotation matrix
-        v = np.cross(self.prevCamPos, camPos)
-        #magnitude of v
-        s = np.linalg.norm(v)
-        c = np.asmatrix(self.prevCamPos) * np.asmatrix(camPos)
-
-        v_x = np.array([0, -v[2], v[1]],
-                       [v[2], 0, -v[0]],
-                       [-v[1], v[0], 0])
-
-        R_iw = np.identity(3) + v_x + (v_x * v_x * ((1 - c)/(s * s)))
-
-        robotPos = R_iw * x_wj + t_iw
 
 
 
