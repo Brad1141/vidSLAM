@@ -145,34 +145,30 @@ def getWorldCoords(points1, points2, kp2):
 
         currZ = ((R[0] - (points2[i][0] * R[2]) * t) / ((R[0] - points2[i][0] * R[2]) * y))
         prevZ = ((R[0] - (points1[i][0] * R[2]) * t) / ((R[0] - points1[i][0] * R[2]) * y))
-        currLM.append([points2[i][0], points2[i][1], currZ])
-        prevLM.append([points1[i][0], points1[i][1], prevZ])
+        currZ = np.array(currZ)
+        prevZ = np.array(prevZ)
+        currLM.append([points2[i][0] * currZ[0][0], points2[i][1] * currZ[0][0], currZ[0][0]])
+        prevLM.append([points1[i][0] * prevZ[0][0], points1[i][1] * prevZ[0][0], prevZ[0][0]])
 
-    xk = SLAM.predictState(currLM, prevLM, points1, points2)
-    camX, camY, camZ = xk[0], xk[1], xk[2]
+    x_arr, y_arr, z_arr = SLAM.predictState(currLM, prevLM, points1, points2)
+    camX, camY, camZ = x_arr[0], y_arr[0], z_arr[0]
     camX_arr.append(camX)
     camY_arr.append(camY)
     camZ_arr.append(camZ)
 
-    count = 0
-    for i in range(3, len(xk)):
-        count = count + 1
-        if count == 1:
-            x_arr.append(xk[i])
-        elif count == 2:
-            y_arr.append(xk[i])
-        else:
-            z_arr.append(xk[i])
 
     return currLM, prevLM
 
 
 def buildMap():
     global x_arr, y_arr, z_arr, camX_arr, camY_arr, camZ_arr
+    del x_arr[0]
+    del y_arr[0]
+    del z_arr[0]
     fig = plt.figure()
     ax = Axes3D(fig)
     ax.scatter(x_arr, y_arr, z_arr)
-    ax.scatter(camX_arr, camY_arr, camZ_arr, c=(255, 0, 0))
+    ax.scatter(camX_arr, camY_arr, camZ_arr, c='r')
     plt.show()
 
 
