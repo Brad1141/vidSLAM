@@ -7,7 +7,7 @@ import math
 # def SLAM(frame):
 #     DataVisual.featureExtraction(frame)
 
-def getPos(points1, points2):
+def getCamPos(points1, points2):
     x = 800 / 2
     y = 600 / 2
 
@@ -36,11 +36,12 @@ def getPos(points1, points2):
     R = np.asmatrix(U) * np.asmatrix(w_i) * np.asmatrix(vh).T
 
     pts, rr, tt, mask2 = cv2.recoverPose(E, np.float32(points1), np.float32(points2), K, R, t, mask)
+    rr = np.asmatrix(rr).I
 
     # compute the 3d coordinate of the camera
     x3 = ((rr[0] - (pts * rr[2]) * tt) / ((rr[0] - pts * rr[2]) * y))
     x3 = np.array(x3)
-    x3 = x3[0][0]
+    x3 = x3[0][2]
     x1 = x3 * pts
     x2 = x3 * pts
 
@@ -69,7 +70,7 @@ def predictState(currLM, prevLM, points1, points2):
     xk = np.asmatrix(xk)
 
     # zk is a model of the current state
-    camX, camY, camZ = getPos(points1, points2)
+    camX, camY, camZ = getCamPos(points1, points2)
     zk = []
     zk = np.append(zk, camX)
     zk = np.append(zk, camY)
