@@ -119,8 +119,8 @@ def getWorldCoords(points1, points2, kp2):
     f_y = y / math.tan(60 / 2) * -1
 
     # camera matrix
-    K = np.array([[f_x, 0, x],
-                  [0, f_y, y],
+    K = np.array([[525, 0, x],
+                  [0, 525, y],
                   [0, 0, 1]])
 
     #ret, K, dist, R, t = cv2.calibrateCamera()
@@ -128,47 +128,47 @@ def getWorldCoords(points1, points2, kp2):
     # E, mask = cv2.findEssentialMat(np.float32(points1), np.float32(points2), K)
     E, mask = cv2.findFundamentalMat(np.float32(points1), np.float32(points2), cv2.FM_8POINT)
     points, R, t, mask = cv2.recoverPose(E, np.float32(points1), np.float32(points2), K, 500)
-    ppt = t
 
     R = np.asmatrix(R).I
     scale = np.sqrt((t[0] - pt[0])*(t[0] - pt[0]) + (t[1] - pt[1])*(t[1] - pt[1]) + (t[2] - pt[2])*(t[2] - pt[2]))
-    t = t + (scale * np.array(R).dot(t))
 
-    camX_arr.append(t[0])
-    camY_arr.append(t[1])
-    camZ_arr.append(t[2])
+    camX_arr.append(pt[0] + t[0])
+    camY_arr.append(pt[1] + t[1])
+    camZ_arr.append(pt[2] + t[2])
 
-    #R = np.asmatrix(R).I
+    # R = np.asmatrix(R).I
     C = np.hstack((R, t))
-    points1, points2 = np.asmatrix(points1).T, np.asmatrix(points2).T
+    # points1, points2 = np.asmatrix(points1).T, np.asmatrix(points2).T
     #ret, K = cv2.calibrateCamera(np.float32(points1), np.float32(points2), (800, 600), K)
 
 
     if prevC != []:
-        cords4d = cv2.triangulatePoints(prevC, C, np.float32(points1), np.float32(points2))
-        #pts3d = cv2.convertPointsFromHomogeneous(cords4d.transpose())
-
-        for point in cords4d:
-            print(np.array(point).shape)
-            x_arr.append(point[0][0])
-            y_arr.append(point[0][1])
-            z_arr.append(point[0][2])
+        # cords4d = cv2.triangulatePoints(prevC, C, np.float32(points1), np.float32(points2))
+        # pts3d = cv2.convertPointsFromHomogeneous(cords4d.transpose())
+        #
+        # for point in pts3d:
+        #     x_arr.append(point[0][0])
+        #     y_arr.append(point[0][1])
+        #     z_arr.append(point[0][2])
 
         # for i in range(50):
         #     x_arr.append(coords4d[0][i])
         #     y_arr.append(coords4d[1][i])
         #     z_arr.append(coords4d[2][i])
         # points2 = np.array(points2)
-        # for i in range(len(points2)):
-        #     pts2d = np.asmatrix([points2[i][0], points2[i][1], 1]).T
-        #     P = np.asmatrix(K) * np.asmatrix(C)
-        #     pts3d = np.asmatrix(P).I * pts2d
-        #     x_arr.append(pts3d[0][0])
-        #     y_arr.append(pts3d[1][0])
-        #     z_arr.append(pts3d[2][0])
+        for i in range(len(points2)):
+            # pts2d = np.asmatrix([points2[i][0], points2[i][1], 1]).T
+            # pts2d1 = np.asmatrix([points1[i][0], points1[i][1], 1]).T
+            # print(pts2d.T * E * pts2d1)
+            # pts2d = P * pts3d
+            pts2d = np.asmatrix([points2[i][0], points2[i][1], 1]).T
+            P = np.asmatrix(K) * np.asmatrix(C)
+            pts3d = np.asmatrix(P).I * pts2d
+            x_arr.append(pts3d[0][0] * scale)
+            y_arr.append(pts3d[1][0] * scale)
+            z_arr.append(pts3d[2][0] * scale)
 
-    pt = t
-
+    pt = [pt[0] + t[0], pt[1] + t[1], pt[2] + t[2]]
 
 
     # U, S, vh = np.linalg.svd(E)
