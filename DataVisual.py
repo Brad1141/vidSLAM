@@ -3,11 +3,7 @@ import cv2
 prevKP = []
 prevDes = []
 
-def featureExtraction():
-
-    #get image
-    frame = cv2.imread('frame1.png')
-
+def featureExtraction(frame):
     #resize the image
     frame = cv2.resize(frame, (800, 600))
 
@@ -18,11 +14,10 @@ def featureExtraction():
     kp, des = orb.detectAndCompute(frame, None)
 
     # draw keypoints
-    img2 = cv2.drawKeypoints(frame, kp, None, color=(0, 0, 255), flags=0)
+    img2 = cv2.drawKeypoints(frame, kp, None, color=(255, 0, 0), flags=0)
 
     #Display results on screen
-    cv2.imshow('orbs', img2)
-    cv2.waitKey()
+    cv2.imshow('vidSLAM', img2)
 
 def dataAssociation():
 
