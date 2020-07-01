@@ -1,10 +1,10 @@
 import DataVisual
+import SLAM
 import cv2
-import numpy as np
-
 
 cap = cv2.VideoCapture('drive.mp4')
 count = 0
+slam = SLAM.Slam()
 # Read until video is completed
 while(cap.isOpened()):
   # Capture frame-by-frame
@@ -18,7 +18,7 @@ while(cap.isOpened()):
     DataVisual.featureExtraction(frame)
 
     if count >= 10:
-      DataVisual.dataAssociation(frame)
+      slam.runSlam(frame)
       count = 0
 
     # Press Q on keyboard to  exit
@@ -32,7 +32,7 @@ while(cap.isOpened()):
 # When everything done, release the video capture object
 cap.release()
 
-DataVisual.buildMap()
+slam.buildMap()
 
 # Closes all the frames
 cv2.destroyAllWindows()
