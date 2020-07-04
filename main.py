@@ -1,10 +1,16 @@
 import DataVisual
 import SLAM
 import cv2
+import argparse
 
-cap = cv2.VideoCapture('drive.mp4')
+parser = argparse.ArgumentParser()
+parser.add_argument('-video', nargs='?', type=str, default='drive.mp4')
+parser.add_argument('-fov', nargs='?', type=int, default=60)
+args = parser.parse_args()
+
+cap = cv2.VideoCapture(args.video)
 count = 0
-slam = SLAM.Slam()
+slam = SLAM.Slam(args.fov)
 
 # Read until video is completed
 while(cap.isOpened()):

@@ -11,13 +11,14 @@ prev_Pk = 0.05
 
 
 class Slam:
-    def __init__(self):
+    def __init__(self, fov):
         self.kp1 = []
         self.des1 = []
         self.camPos = [0, 0, 0]
         self.cam_xyz = []
         self.lm_xyz = []
         self.scale = 5
+        self.fov = fov
 
 
     #need to add bundle adjustment, loop closure, and p3p
@@ -73,7 +74,7 @@ class Slam:
         currLM = []
 
         # focal lengths (assumes that the field of view is 60)
-        fov = 60 * (math.pi / 180)
+        fov = self.fov * (math.pi / 180)
         f_x = x / math.tan(fov / 2)
         f_y = y / math.tan(fov / 2)
 
