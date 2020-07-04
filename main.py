@@ -5,6 +5,7 @@ import cv2
 cap = cv2.VideoCapture('drive.mp4')
 count = 0
 slam = SLAM.Slam()
+
 # Read until video is completed
 while(cap.isOpened()):
   # Capture frame-by-frame
@@ -21,7 +22,7 @@ while(cap.isOpened()):
       slam.runSlam(frame)
       count = 0
 
-    # Press Q on keyboard to  exit
+    # Press Q on keyboard to exit
     if cv2.waitKey(1) & 0xFF == ord('q'):
       break
 

@@ -19,6 +19,7 @@ class Slam:
         self.lm_xyz = []
         self.scale = 5
 
+
     #need to add bundle adjustment, loop closure, and p3p
     def runSlam(self, currImg):
         points1, points2 = self.dataAssociation(currImg)
@@ -72,9 +73,9 @@ class Slam:
         currLM = []
 
         # focal lengths (assumes that the field of view is 60)
-        radi = 60 * (math.pi / 180)
-        f_x = x / math.tan(radi / 2)
-        f_y = y / math.tan(radi / 2)
+        fov = 60 * (math.pi / 180)
+        f_x = x / math.tan(fov / 2)
+        f_y = y / math.tan(fov / 2)
 
         # camera matrix
         K = np.array([[f_x, 0, x],
