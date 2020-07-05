@@ -6,7 +6,7 @@ vidSLAM is a Feature-based visual SLAM program which preforms SLAM on a given vi
 
 ## Installing and Running vidSLAM
 1. Install the dependencies listed below
-2. run the command ```https://github.com/Brad1141/vidSLAM.git```
+2. run the command ```git clone https://github.com/Brad1141/vidSLAM.git```
 3. Open the repo and run the file```main.py```
 - ```main.py``` accepts two arguments ```-video``` and ```-fov```
 - ```-video``` The path of the video file (the default video is ```drive.mp4```)
