@@ -1,5 +1,5 @@
 # vidSLAM
-<img src="part1_superLarge.jpg" width="400" height="400"> <img src="MoreDetailedMap.png" width="400" height="400">
+<img src="vidSLAM_example2.jpg" width="400" height="400"> <img src="vidSLAM_example.png" width="400" height="400">
 
 ## What is vidSLAM?
 vidSLAM is a Feature-based visual SLAM program which preforms SLAM on a given video using Structure from Motion(SfM) 
