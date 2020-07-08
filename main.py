@@ -1,4 +1,3 @@
-import DataVisual
 import SLAM
 import cv2
 
@@ -16,7 +15,7 @@ while(cap.isOpened()):
     # Display the resulting frame
     frame = cv2.resize(frame, (800, 600))
 
-    DataVisual.featureExtraction(frame)
+    slam.featureExtraction(frame)
 
     if count >= 10:
       slam.runSlam(frame)
@@ -37,7 +36,3 @@ slam.buildMap()
 
 # Closes all the frames
 cv2.destroyAllWindows()
-
-
-
-
