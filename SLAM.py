@@ -17,7 +17,8 @@ class Slam:
         self.camPos = [0, 0, 0]
         self.cam_xyz = []
         self.lm_xyz = []
-        self.scale = 5
+        self.scale = 6
+        self.M_l = np.hstack((np.eye(3, 3), np.zeros((3, 1))))
 
     def runSlam(self, currImg):
         points1, points2 = self.dataAssociation(currImg)
@@ -86,7 +87,6 @@ class Slam:
         x = 800 / 2
         y = 600 / 2
 
-        # focal lengths (assumes that the field of view is 60)
         fov = 60 * (math.pi / 180)
         f_x = x / math.tan(fov / 2)
         f_y = y / math.tan(fov / 2)
@@ -98,8 +98,6 @@ class Slam:
 
         E, mask = cv2.findFundamentalMat(np.float32(points2), np.float32(points1), cv2.FM_8POINT)
         points, R, t, mask = cv2.recoverPose(E, np.float32(points2), np.float32(points1), K, 500)
-        R = np.asmatrix(R).I
-
         self.cam_xyz.append([self.camPos[0] + t[0], self.camPos[1] + t[1], self.camPos[2] + t[2]])
 
         C = np.hstack((R, t))
@@ -113,7 +111,6 @@ class Slam:
                                 pts3d[2][0] * self.scale + self.camPos[2]])
 
         self.camPos = [self.camPos[0] + t[0], self.camPos[1] + t[1], self.camPos[2] + t[2]]
-
 
     def buildMap(self):
         self.lm_xyz = np.array(self.lm_xyz)

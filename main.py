@@ -1,7 +1,7 @@
 import SLAM
 import cv2
 
-cap = cv2.VideoCapture('drive.mp4')
+cap = cv2.VideoCapture('TestLoop.mp4')
 count = 0
 slam = SLAM.Slam()
 
@@ -17,7 +17,7 @@ while(cap.isOpened()):
 
     slam.featureExtraction(frame)
 
-    if count >= 10:
+    if count >= 5:
       slam.runSlam(frame)
       count = 0
 
